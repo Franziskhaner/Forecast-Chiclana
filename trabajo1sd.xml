@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/current/mule-twitter.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/schedulers http://www.mulesoft.org/schema/mule/schedulers/current/mule-schedulers.xsd">
+    <http:request-config name="HTTP_Request_Configuration"  host="old.windguru.cz" port="80" basePath="/es/index.php?sc=38931&amp;sty=m_spot" doc:name="HTTP Request Configuration"/>
+    <twitter:config name="Twitter__Configuration" accessKey="849163779879383040-Ks0dId3mdt2CXK0qDxTn4vq4X8KWjjc" accessSecret="4HE3n32Fl2C5U61E9geEyZf4LfbMlq5XMj0RdDqvFDZt6" consumerKey="Zs3eLFnSmQID0fxQn6bn1LbY9" consumerSecret="EBTPNSH4J8rhs5qyqCifSDSVX9jReAL8Bx2oGg8ErgfJDxslKN" doc:name="Twitter: Configuration"/>
+    <spring:beans>
+        <spring:bean id="jsonToPrevision" name="Bean" class="trabajo1sd.JsonToPrevision"/>
+    </spring:beans>
+    <flow name="trabajo1sdFlow">
+        <poll doc:name="Poll">
+            <fixed-frequency-scheduler frequency="180" timeUnit="MINUTES"/>
+            <http:request config-ref="HTTP_Request_Configuration" path="/" method="GET" doc:name="HTTP"/>
+        </poll>
+        <component class="trabajo1sd.StringToJson" doc:name="StringToJson"/>
+        <component class="trabajo1sd.JsonToPrevision" doc:name="JsonToPrevision"/>
+        <twitter:update-status config-ref="Twitter__Configuration" status="#[payload]" doc:name="Twitter"/>
+    </flow>
+</mule>
